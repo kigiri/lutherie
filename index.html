@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Dimensions</title>
+	<style type="text/css">
+		* {
+			font-family: monospace;
+		}
+		label {
+			display: flex;
+			padding: 3px;
+			align-items: center;
+		}
+		label > b {
+			width: 13ch;
+		}
+		input {
+			width: 5ch;
+			padding: 3px 5px;
+		}
+		output {
+			white-space: pre;
+		}
+	</style>
+</head>
+<body>
+	<button
+		data-body=470
+		data-lower=267
+		data-upper=223
+		data-middle=149>
+		Andrea Amati Tenor
+	</button>
+	<button
+		data-body=415
+		data-lower=241.25
+		data-upper=196
+		data-middle=135.2>
+		Andrea Guarneri Alto
+	</button>
+	<form>
+		<table>
+			<label>
+				<b>Body Length:</b>
+				<input type=number name=body value=0>
+			</label>
+			<label>
+				<b>Lower Boot:</b>
+				<input type=number name=lower value=0>
+			</label>
+			<label>
+				<b>Upper Boot:</b>
+				<input type=number name=upper value=0>
+			</label>
+			<label>
+				<b>Middle Boot:</b>
+				<input type=number name=middle value=0>
+			</label>
+			<label>
+				<b>Border:</b>
+				<input type=number name=border value=0>
+			</label>
+			<label>
+				<b>Precision:</b>
+				<input type=number name=precision value=50>
+			</label>
+			<output for="body + lower + upper + middle + precision + border">
+			</output>
+		</table>
+	</form>
+<script type="text/javascript">
+const inputs = Object.fromEntries([...document.querySelectorAll('input')].map(i => [i.name, i]))
+
+
+const ratios = Array(64 + 1).keys().drop(1).map(n => ({
+	graduation: n/4,
+	ratio: 1 - 1 / (n/4),
+	format: (2/3) * (1 - 1 / (n/4))
+})).toArray()
+
+const r = n => {
+	const left = n - ~~(n)
+	return ~~(n) + ~~(left * 5) * 0.25 
+}
+
+const applyChanges = () => {
+const border = Number(inputs.border.value)
+const precision = Number(inputs.precision.value)
+const value = {
+	bodyLength: Number(inputs.body.value) - border,
+	lowerBoot: Number(inputs.lower.value) - border,
+	upperBoot: Number(inputs.upper.value) - border,
+	middleBoot: Number(inputs.middle.value) - border,
+}
+
+const { bodyLength, lowerBoot, upperBoot, middleBoot } = value
+
+const zob = [
+	...ratios.map(({ graduation, format }) => ({
+		lbRatio: graduation,
+		lbScore: Math.abs(lowerBoot - format * bodyLength) + border,
+		lb: format * bodyLength,
+	}))
+	.filter(({ lbScore }) => lbScore < bodyLength/50)
+	.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
+		ubRatio: graduation,
+		ubScore: Math.abs(upperBoot - ratio * v.lb) + border,
+		ub: ratio * v.lb,
+		...v,
+	})))
+	.filter(({ ubScore }) => ubScore < upperBoot/50)
+	.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
+		mbRatio: graduation,
+		mbScore: Math.abs(middleBoot - ratio * v.ub) + border,
+		mb: ratio * v.ub,
+		...v,
+	})))
+	.filter(({ mbScore }) => mbScore < middleBoot/50),
+	{
+		method: 'single',
+		...Object.fromEntries(Object.entries(value)
+		.filter(([k]) => k.endsWith('Boot'))
+		.flatMap(([k, v]) => {
+			const [ratio, score, width] = ratios.map(({ graduation, format }) => [
+				graduation,
+				Math.abs(v - format * bodyLength) + border,
+				format * bodyLength + border,
+			]).sort((a, b) => a[1] - b[1])[0]
+			return [
+				[`${k[0]}bRatio`, ratio],
+				[`${k[0]}bScore`, score],
+				[`${k[0]}b`, width],
+			]
+		}))
+	}]
+	.map(v => ({
+		method: v.method || 'triple',
+		lbRatio: v.lbRatio,
+		ubRatio: v.ubRatio,
+		mbRatio: v.mbRatio,
+		mb: v.mb,
+		lb: v.lb,
+		ub: v.ub,
+		score: v.lbScore + v.ubScore + v.mbScore,
+	}))
+
+zob.sort((a,b) => a.score - b.score)
+
+const isInt = n => ~~n === n
+
+const preciseMatch = zob[0]
+const roundedMatch = zob.find(v => isInt(v.lbRatio) && isInt(v.ubRatio) && isInt(v.mbRatio))
+const [output] = document.querySelectorAll('output')
+output.textContent = JSON.stringify({
+	preciseMatch,
+	roundedMatch,
+	singleMatch: zob.find(m => m.method === 'single'),
+}, null, 2)
+}
+for (const btn of document.querySelectorAll('button')) {
+	btn.addEventListener('click', () => {
+		for (const [k, v] of Object.entries(btn.dataset)) {
+			inputs[k].value = v
+		}
+		applyChanges()
+	})
+}
+
+for (const i of Object.values(inputs)) {
+	i.addEventListener('input', applyChanges)
+}
+</script>
+</body>
+</html>
