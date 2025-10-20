@@ -17,11 +17,39 @@
 			width: 13ch;
 		}
 		input {
-			width: 5ch;
+			width: 9ch;
+			height: 3ch;
 			padding: 3px 5px;
+			border: 0;
 		}
 		output {
-			white-space: pre;
+			text-align: center;
+			display: inline-block;
+			width: 100%;
+		}
+
+		table {
+			border-collapse: collapse;
+			border-color: white;
+		}
+		th {
+			padding: 6px;
+			border-color: white;
+		}
+		td {
+			border-color: white;
+		}
+		form {
+			padding-top: 10px;
+		}
+		.precise {
+			background: #efd;
+		}
+		.rounded {
+			background: #fde;
+		}
+		.single {
+			background: #def;
 		}
 	</style>
 </head>
@@ -41,38 +69,95 @@
 		Andrea Guarneri Alto
 	</button>
 	<form>
-		<table>
-			<label>
-				<b>Body Length:</b>
-				<input type=number name=body value=0>
-			</label>
-			<label>
-				<b>Lower Boot:</b>
-				<input type=number name=lower value=0>
-			</label>
-			<label>
-				<b>Upper Boot:</b>
-				<input type=number name=upper value=0>
-			</label>
-			<label>
-				<b>Middle Boot:</b>
-				<input type=number name=middle value=0>
-			</label>
-			<label>
-				<b>Border:</b>
-				<input type=number name=border value=0>
-			</label>
-			<label>
-				<b>Precision:</b>
-				<input type=number name=precision value=50>
-			</label>
-			<output for="body + lower + upper + middle + precision + border">
-			</output>
+		<table border=2>
+	    <thead>
+	      <tr>
+	        <th rowspan=2></th>
+	        <th rowspan=2>Input</th>
+	        <th class=precise colspan=2>Precise</th>
+	        <th class=rounded colspan=2>Rounded</th>
+	        <th class=single colspan=2>Single</th>
+	      </tr>
+	      <tr>
+	        <th class=precise>Ratio</th>
+	        <th class=precise>Width</th>
+	        <th class=rounded>Ratio</th>
+	        <th class=rounded>Width</th>
+	        <th class=single>Ratio</th>
+	        <th class=single>Width</th>
+	      <tr>
+	    </thead>
+    <tbody>
+			<tr>
+				<th scope=row><label for=body>Body Length:</label></th>
+				<td><input type=number name=body value=0></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th scope=row><label for=lower>Lower Boot:</label></th>
+				<td><input type=number name=lower value=0></td>
+				<td class=precise><output id=preciseLRatio for="body + lower + precision + border"></output></td>
+				<td class=precise><output id=preciseLWidth for="body + lower + precision + border"></output></td>
+				<td class=rounded><output id=roundedLRatio for="body + lower + precision + border"></output></td>
+				<td class=rounded><output id=roundedLWidth for="body + lower + precision + border"></output></td>
+				<td class=single><output id=singleLRatio for="body + lower + precision + border"></output></td>
+				<td class=single><output id=roundedLWidth for="body + lower + precision + border"></output></td>
+			</tr>
+			<tr>
+				<th scope=row><label for=upper>Upper Boot:</label></th>
+				<td><input type=number name=upper value=0></td>
+				<td class=precise><output id=preciseURatio for="body + upper + precision + border"></output></td>
+				<td class=precise><output id=preciseUWidth for="body + upper + precision + border"></output></td>
+				<td class=rounded><output id=roundedURatio for="body + upper + precision + border"></output></td>
+				<td class=rounded><output id=roundedUWidth for="body + upper + precision + border"></output></td>
+				<td class=single><output id=singleURatio for="body + upper + precision + border"></output></td>
+				<td class=single><output id=singleUWidth for="body + upper + precision + border"></output></td>
+			</tr>
+			<tr>
+				<th scope=row><label for=middle>Middle Boot:</label></th>
+				<td><input type=number name=middle value=0></td>
+				<td class=precise><output id=preciseMRatio for="body + middle + precision + border"></output></td>
+				<td class=precise><output id=preciseMWidth for="body + middle + precision + border"></output></td>
+				<td class=rounded><output id=roundedMRatio for="body + middle + precision + border"></output></td>
+				<td class=rounded><output id=roundedMWidth for="body + middle + precision + border"></output></td>
+				<td class=single><output id=singleMRatio for="body + middle + precision + border"></output></td>
+				<td class=single><output id=singleMWidth for="body + middle + precision + border"></output></td>
+			</tr>
+			<tr>
+				<th scope=row><label for=border>Border:</label></th>
+				<td><input type=number name=border value=0></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th scope=row><label for=precision>Precision:</label></th>
+				<td><input type=number name=precision value=50></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+    </tbody>
 		</table>
 	</form>
 <script type="text/javascript">
-const inputs = Object.fromEntries([...document.querySelectorAll('input')].map(i => [i.name, i]))
-
+const inputs = Object.fromEntries(
+	[...document.querySelectorAll('input')].map(i => [i.name, i])
+)
+const outputs = Object.fromEntries(
+	[...document.querySelectorAll('output')].map(o => [o.id, o])
+)
 
 const ratios = Array(64 + 1).keys().drop(1).map(n => ({
 	graduation: n/4,
@@ -80,85 +165,88 @@ const ratios = Array(64 + 1).keys().drop(1).map(n => ({
 	format: (2/3) * (1 - 1 / (n/4))
 })).toArray()
 
-const r = n => {
+const fmtNum = n => {
 	const left = n - ~~(n)
 	return ~~(n) + ~~(left * 5) * 0.25 
 }
 
+// Recompute the outputs
 const applyChanges = () => {
-const border = Number(inputs.border.value)
-const precision = Number(inputs.precision.value)
-const value = {
-	bodyLength: Number(inputs.body.value) - border,
-	lowerBoot: Number(inputs.lower.value) - border,
-	upperBoot: Number(inputs.upper.value) - border,
-	middleBoot: Number(inputs.middle.value) - border,
-}
+	const border = Number(inputs.border.value)
+	const precision = Number(inputs.precision.value)
+	const bodyLength = Number(inputs.body.value) - border
+	const lowerBoot = Number(inputs.lower.value) - border
+	const upperBoot = Number(inputs.upper.value) - border
+	const middleBoot = Number(inputs.middle.value) - border
 
-const { bodyLength, lowerBoot, upperBoot, middleBoot } = value
-
-const zob = [
-	...ratios.map(({ graduation, format }) => ({
-		lbRatio: graduation,
-		lbScore: Math.abs(lowerBoot - format * bodyLength) + border,
-		lb: format * bodyLength,
-	}))
-	.filter(({ lbScore }) => lbScore < bodyLength/50)
-	.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
-		ubRatio: graduation,
-		ubScore: Math.abs(upperBoot - ratio * v.lb) + border,
-		ub: ratio * v.lb,
-		...v,
-	})))
-	.filter(({ ubScore }) => ubScore < upperBoot/50)
-	.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
-		mbRatio: graduation,
-		mbScore: Math.abs(middleBoot - ratio * v.ub) + border,
-		mb: ratio * v.ub,
-		...v,
-	})))
-	.filter(({ mbScore }) => mbScore < middleBoot/50),
-	{
-		method: 'single',
-		...Object.fromEntries(Object.entries(value)
-		.filter(([k]) => k.endsWith('Boot'))
-		.flatMap(([k, v]) => {
-			const [ratio, score, width] = ratios.map(({ graduation, format }) => [
-				graduation,
-				Math.abs(v - format * bodyLength) + border,
-				format * bodyLength + border,
-			]).sort((a, b) => a[1] - b[1])[0]
-			return [
-				[`${k[0]}bRatio`, ratio],
-				[`${k[0]}bScore`, score],
-				[`${k[0]}b`, width],
-			]
+	const values = [
+		...ratios.map(({ graduation, format }) => ({
+			lbRatio: graduation,
+			lbScore: Math.abs(lowerBoot - format * bodyLength) + border,
+			lb: format * bodyLength,
 		}))
-	}]
-	.map(v => ({
-		method: v.method || 'triple',
-		lbRatio: v.lbRatio,
-		ubRatio: v.ubRatio,
-		mbRatio: v.mbRatio,
-		mb: v.mb,
-		lb: v.lb,
-		ub: v.ub,
-		score: v.lbScore + v.ubScore + v.mbScore,
-	}))
+		.filter(({ lbScore }) => lbScore < bodyLength/50)
+		.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
+			ubRatio: graduation,
+			ubScore: Math.abs(upperBoot - ratio * v.lb) + border,
+			ub: ratio * v.lb,
+			...v,
+		})))
+		.filter(({ ubScore }) => ubScore < upperBoot/50)
+		.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
+			mbRatio: graduation,
+			mbScore: Math.abs(middleBoot - ratio * v.ub) + border,
+			mb: ratio * v.ub,
+			...v,
+		})))
+		.filter(({ mbScore }) => mbScore < middleBoot/50),
+		{
+			method: 'single',
+			...Object.fromEntries(
+				Object.entries({ lowerBoot, upperBoot, middleBoot }).flatMap(([k, v]) => {
+					const [ratio, score, width] = ratios.map(({ graduation, format }) => [
+						graduation,
+						Math.abs(v - format * bodyLength) + border,
+						format * bodyLength + border,
+					]).sort((a, b) => a[1] - b[1])[0]
+					return [
+						[`${k[0]}bRatio`, ratio],
+						[`${k[0]}bScore`, score],
+						[`${k[0]}b`, width],
+					]
+				})
+			)
+		}]
+		.map(v => ({
+			method: v.method || 'triple',
+			lbRatio: v.lbRatio,
+			ubRatio: v.ubRatio,
+			mbRatio: v.mbRatio,
+			mb: v.mb,
+			lb: v.lb,
+			ub: v.ub,
+			score: v.lbScore + v.ubScore + v.mbScore,
+		}))
+		.sort((a,b) => a.score - b.score)
 
-zob.sort((a,b) => a.score - b.score)
+	const isInt = n => ~~n === n
 
-const isInt = n => ~~n === n
-
-const preciseMatch = zob[0]
-const roundedMatch = zob.find(v => isInt(v.lbRatio) && isInt(v.ubRatio) && isInt(v.mbRatio))
-const [output] = document.querySelectorAll('output')
-output.textContent = JSON.stringify({
-	preciseMatch,
-	roundedMatch,
-	singleMatch: zob.find(m => m.method === 'single'),
-}, null, 2)
+	const [precise] = values
+	const single = values.find(m => m.method === 'single')
+	const rounded = values.find(
+		v => isInt(v.lbRatio) && isInt(v.ubRatio) && isInt(v.mbRatio)
+	)
+	for (const [k, v] of Object.entries({ precise, single, rounded })) {
+		outputs[`${k}LRatio`].value = fmtNum(v.lbRatio)
+		outputs[`${k}URatio`].value = fmtNum(v.ubRatio)
+		outputs[`${k}MRatio`].value = fmtNum(v.mbRatio)
+		outputs[`${k}LWidth`].value = fmtNum(v.lb)
+		outputs[`${k}UWidth`].value = fmtNum(v.ub)
+		outputs[`${k}MWidth`].value = fmtNum(v.mb)
+	}
 }
+
+// Hook events in the dom
 for (const btn of document.querySelectorAll('button')) {
 	btn.addEventListener('click', () => {
 		for (const [k, v] of Object.entries(btn.dataset)) {
@@ -171,6 +259,8 @@ for (const btn of document.querySelectorAll('button')) {
 for (const i of Object.values(inputs)) {
 	i.addEventListener('input', applyChanges)
 }
+
+applyChanges()
 </script>
 </body>
 </html>
