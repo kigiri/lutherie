@@ -54,20 +54,6 @@
 	</style>
 </head>
 <body>
-	<button
-		data-body=470
-		data-lower=267
-		data-upper=223
-		data-middle=149>
-		Andrea Amati Tenor
-	</button>
-	<button
-		data-body=415
-		data-lower=241.25
-		data-upper=196
-		data-middle=135.2>
-		Andrea Guarneri Alto
-	</button>
 	<form>
 		<table border=2>
 	    <thead>
@@ -99,17 +85,17 @@
 				<td></td>
 			</tr>
 			<tr>
-				<th scope=row><label for=lower>Lower Boot:</label></th>
+				<th scope=row><label for=lower>Lower Bout:</label></th>
 				<td><input type=number name=lower value=0></td>
 				<td class=precise><output id=preciseLRatio for="body + lower + precision + border"></output></td>
 				<td class=precise><output id=preciseLWidth for="body + lower + precision + border"></output></td>
 				<td class=rounded><output id=roundedLRatio for="body + lower + precision + border"></output></td>
 				<td class=rounded><output id=roundedLWidth for="body + lower + precision + border"></output></td>
 				<td class=single><output id=singleLRatio for="body + lower + precision + border"></output></td>
-				<td class=single><output id=roundedLWidth for="body + lower + precision + border"></output></td>
+				<td class=single><output id=singleLWidth for="body + lower + precision + border"></output></td>
 			</tr>
 			<tr>
-				<th scope=row><label for=upper>Upper Boot:</label></th>
+				<th scope=row><label for=upper>Upper Bout:</label></th>
 				<td><input type=number name=upper value=0></td>
 				<td class=precise><output id=preciseURatio for="body + upper + precision + border"></output></td>
 				<td class=precise><output id=preciseUWidth for="body + upper + precision + border"></output></td>
@@ -119,7 +105,7 @@
 				<td class=single><output id=singleUWidth for="body + upper + precision + border"></output></td>
 			</tr>
 			<tr>
-				<th scope=row><label for=middle>Middle Boot:</label></th>
+				<th scope=row><label for=middle>Middle Bout:</label></th>
 				<td><input type=number name=middle value=0></td>
 				<td class=precise><output id=preciseMRatio for="body + middle + precision + border"></output></td>
 				<td class=precise><output id=preciseMWidth for="body + middle + precision + border"></output></td>
@@ -151,6 +137,7 @@
     </tbody>
 		</table>
 	</form>
+	<div id=instruments></div>
 <script type="text/javascript">
 const inputs = Object.fromEntries(
 	[...document.querySelectorAll('input')].map(i => [i.name, i])
@@ -165,7 +152,7 @@ const ratios = Array(64 + 1).keys().drop(1).map(n => ({
 	format: (2/3) * (1 - 1 / (n/4))
 })).toArray()
 
-const fmtNum = n => {
+const fmtNum = (n = 0) => {
 	const left = n - ~~(n)
 	return ~~(n) + ~~(left * 5) * 0.25 
 }
@@ -175,35 +162,35 @@ const applyChanges = () => {
 	const border = Number(inputs.border.value)
 	const precision = Number(inputs.precision.value)
 	const bodyLength = Number(inputs.body.value) - border
-	const lowerBoot = Number(inputs.lower.value) - border
-	const upperBoot = Number(inputs.upper.value) - border
-	const middleBoot = Number(inputs.middle.value) - border
+	const lowerBout = Number(inputs.lower.value) - border
+	const upperBout = Number(inputs.upper.value) - border
+	const middleBout = Number(inputs.middle.value) - border
 
 	const values = [
 		...ratios.map(({ graduation, format }) => ({
 			lbRatio: graduation,
-			lbScore: Math.abs(lowerBoot - format * bodyLength) + border,
+			lbScore: Math.abs(lowerBout - format * bodyLength) + border,
 			lb: format * bodyLength,
 		}))
 		.filter(({ lbScore }) => lbScore < bodyLength/50)
 		.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
 			ubRatio: graduation,
-			ubScore: Math.abs(upperBoot - ratio * v.lb) + border,
+			ubScore: Math.abs(upperBout - ratio * v.lb) + border,
 			ub: ratio * v.lb,
 			...v,
 		})))
-		.filter(({ ubScore }) => ubScore < upperBoot/50)
+		.filter(({ ubScore }) => ubScore < upperBout/50)
 		.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
 			mbRatio: graduation,
-			mbScore: Math.abs(middleBoot - ratio * v.ub) + border,
+			mbScore: Math.abs(middleBout - ratio * v.ub) + border,
 			mb: ratio * v.ub,
 			...v,
 		})))
-		.filter(({ mbScore }) => mbScore < middleBoot/50),
+		.filter(({ mbScore }) => mbScore < middleBout/50),
 		{
 			method: 'single',
 			...Object.fromEntries(
-				Object.entries({ lowerBoot, upperBoot, middleBoot }).flatMap(([k, v]) => {
+				Object.entries({ lowerBout, upperBout, middleBout }).flatMap(([k, v]) => {
 					const [ratio, score, width] = ratios.map(({ graduation, format }) => [
 						graduation,
 						Math.abs(v - format * bodyLength) + border,
@@ -218,13 +205,8 @@ const applyChanges = () => {
 			)
 		}]
 		.map(v => ({
+			...v,
 			method: v.method || 'triple',
-			lbRatio: v.lbRatio,
-			ubRatio: v.ubRatio,
-			mbRatio: v.mbRatio,
-			mb: v.mb,
-			lb: v.lb,
-			ub: v.ub,
 			score: v.lbScore + v.ubScore + v.mbScore,
 		}))
 		.sort((a,b) => a.score - b.score)
@@ -237,23 +219,25 @@ const applyChanges = () => {
 		v => isInt(v.lbRatio) && isInt(v.ubRatio) && isInt(v.mbRatio)
 	)
 	for (const [k, v] of Object.entries({ precise, single, rounded })) {
-		outputs[`${k}LRatio`].value = fmtNum(v.lbRatio)
-		outputs[`${k}URatio`].value = fmtNum(v.ubRatio)
-		outputs[`${k}MRatio`].value = fmtNum(v.mbRatio)
-		outputs[`${k}LWidth`].value = fmtNum(v.lb)
-		outputs[`${k}UWidth`].value = fmtNum(v.ub)
-		outputs[`${k}MWidth`].value = fmtNum(v.mb)
+		outputs[`${k}LRatio`].value = fmtNum(v?.lbRatio)
+		outputs[`${k}URatio`].value = fmtNum(v?.ubRatio)
+		outputs[`${k}MRatio`].value = fmtNum(v?.mbRatio)
+		outputs[`${k}LWidth`].value = fmtNum(v?.lb)
+		outputs[`${k}UWidth`].value = fmtNum(v?.ub)
+		outputs[`${k}MWidth`].value = fmtNum(v?.mb)
 	}
 }
 
 // Hook events in the dom
+const handleBtn = (e) => {
+	for (const [k, v] of Object.entries(e.target.dataset)) {
+		inputs[k].value = v
+	}
+	applyChanges()
+}
+
 for (const btn of document.querySelectorAll('button')) {
-	btn.addEventListener('click', () => {
-		for (const [k, v] of Object.entries(btn.dataset)) {
-			inputs[k].value = v
-		}
-		applyChanges()
-	})
+	btn.addEventListener('click', handleBtn)
 }
 
 for (const i of Object.values(inputs)) {
@@ -261,6 +245,24 @@ for (const i of Object.values(inputs)) {
 }
 
 applyChanges()
+
+const loadInstruments = async () => {
+	const res = await fetch('https://opensheet.elk.sh/1HFn1RCQ0jn7bF4v0fY5WTwA98wSP-E6aadHs_K1JfTs/1')
+	const instruments = await res.json()
+	const btns = instruments.map(i => {
+		const btn = document.createElement('button')
+		btn.append(`${i.maker || ''} ${i.description || ''} ${i.year ? `(${i.year})` : ''}`.trim())
+		btn.dataset.upper = i['upper bout']
+		btn.dataset.lower = i['lower bout']
+		btn.dataset.middle = i['middle bout']
+		btn.dataset.body = i['body length']
+		btn.addEventListener('click', handleBtn)
+		return btn
+	})
+	document.getElementById('instruments').replaceChildren(...btns)
+}
+
+loadInstruments()
 </script>
 </body>
 </html>
