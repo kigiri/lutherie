@@ -1,265 +1,406 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Dimensions</title>
-	<style type="text/css">
-		* {
-			font-family: monospace;
-		}
-		label {
-			display: flex;
-			padding: 3px;
-			align-items: center;
-		}
-		label > b {
-			width: 13ch;
-		}
-		input {
-			width: 9ch;
-			height: 3ch;
-			padding: 3px 5px;
-			border: 0;
-		}
-		output {
-			text-align: center;
-			display: inline-block;
-			width: 100%;
-		}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dimensions</title>
+  <style type="text/css">
+* {
+  font-family: 'Courier New', Courier, monospace; /* Enforced monospace */
+  box-sizing: border-box; /* Helps with padding calculations */
+}
 
-		table {
-			border-collapse: collapse;
-			border-color: white;
-		}
-		th {
-			padding: 6px;
-			border-color: white;
-		}
-		td {
-			border-color: white;
-		}
-		form {
-			padding-top: 10px;
-		}
-		.precise {
-			background: #efd;
-		}
-		.rounded {
-			background: #fde;
-		}
-		.single {
-			background: #def;
-		}
-	</style>
+label {
+  display: flex;
+  padding: 3px;
+  align-items: center;
+}
+label > b { width: 13ch; }
+input {
+  width: 9ch;
+  height: 3ch;
+  padding: 3px 5px;
+  border: 1px solid #ddd; /* Added subtle border to input for visibility */
+  background: #fafafa;
+}
+output {
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+}
+table {
+  border-collapse: collapse;
+  border-color: white;
+}
+th {
+  padding: 6px;
+  border-color: white;
+}
+td {
+  border-color: white;
+}
+
+#instruments {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background-color: white;
+}
+
+#instruments th {
+  background-color: #def;
+  color: #345;
+  text-align: left;
+  padding: 8px 10px;
+  font-weight: bold;
+  border-bottom: 2px solid #bce;
+}
+
+#instruments td {
+  padding: 4px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;  
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#instruments th:nth-child(1) { width: 20%; } /* Maker */
+#instruments th:nth-child(2) { width: 8%; }  /* Year */
+#instruments th:nth-child(3) { width: 10%; } /* Type */
+#instruments th:nth-child(4) { width: 12%; text-align: right } /* Body Length */
+#instruments th:nth-child(5) { width: auto; } /* Info gets remaining space */
+#instruments td:nth-child(4) { text-align: right }
+#instruments td:last-child {
+  color: #8898aa; /* Pastel gray/blue text */
+  font-style: italic;
+}
+
+/* --- Interactive Rows (Updated with your pastel vibe) --- */
+#instruments tr {
+  cursor: pointer;
+  user-select: none; 
+  -webkit-user-select: none; 
+  transition: background-color 0.1s ease-in-out;
+}
+
+/* Zebra Striping (Optional - remove if you prefer plain white) */
+#instruments tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+/* Hover State - Using your pastel green preference */
+#instruments tr:hover {
+  background-color: #efd; /* Pastel Green highlight */
+  color: #000;
+}
+
+/* Focus State (Accessibility) */
+#instruments tr:focus-visible {
+  outline: 2px solid #228be6;
+  outline-offset: -2px;
+  background-color: #e7f5ff;
+  position: relative;
+  z-index: 1;
+}
+
+/* Active/Click State - Using your pastel red preference */
+#instruments tr:active {
+  background-color: #fde; /* Pastel Red/Pink press */
+  transition: none;
+  transform: translateY(1px); 
+}
+
+html, body {
+  margin: 0;
+}
+form {
+  padding: 10px 0;
+  justify-content: center;
+  display: flex;
+}
+.precise {
+  background: #efd;
+}
+.rounded {
+  background: #fde;
+}
+.single {
+  background: #def;
+}
+
+  </style>
 </head>
 <body>
-	<form>
-		<table border=2>
-	    <thead>
-	      <tr>
-	        <th rowspan=2></th>
-	        <th rowspan=2>Input</th>
-	        <th class=precise colspan=2>Precise</th>
-	        <th class=rounded colspan=2>Rounded</th>
-	        <th class=single colspan=2>Single</th>
-	      </tr>
-	      <tr>
-	        <th class=precise>Ratio</th>
-	        <th class=precise>Width</th>
-	        <th class=rounded>Ratio</th>
-	        <th class=rounded>Width</th>
-	        <th class=single>Ratio</th>
-	        <th class=single>Width</th>
-	      <tr>
-	    </thead>
+  <form>
+    <table border=2>
+      <thead>
+        <tr>
+          <th rowspan=2></th>
+          <th rowspan=2>Input</th>
+          <th class=precise colspan=2>Precise</th>
+          <th class=rounded colspan=2>Rounded</th>
+          <th class=single colspan=2>Single</th>
+        </tr>
+        <tr>
+          <th class=precise>Ratio</th>
+          <th class=precise>Width</th>
+          <th class=rounded>Ratio</th>
+          <th class=rounded>Width</th>
+          <th class=single>Ratio</th>
+          <th class=single>Width</th>
+        <tr>
+      </thead>
     <tbody>
-			<tr>
-				<th scope=row><label for=body>Body Length:</label></th>
-				<td><input type=number name=body value=0></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-			<tr>
-				<th scope=row><label for=lower>Lower Bout:</label></th>
-				<td><input type=number name=lower value=0></td>
-				<td class=precise><output id=preciseLRatio for="body + lower + precision + border"></output></td>
-				<td class=precise><output id=preciseLWidth for="body + lower + precision + border"></output></td>
-				<td class=rounded><output id=roundedLRatio for="body + lower + precision + border"></output></td>
-				<td class=rounded><output id=roundedLWidth for="body + lower + precision + border"></output></td>
-				<td class=single><output id=singleLRatio for="body + lower + precision + border"></output></td>
-				<td class=single><output id=singleLWidth for="body + lower + precision + border"></output></td>
-			</tr>
-			<tr>
-				<th scope=row><label for=upper>Upper Bout:</label></th>
-				<td><input type=number name=upper value=0></td>
-				<td class=precise><output id=preciseURatio for="body + upper + precision + border"></output></td>
-				<td class=precise><output id=preciseUWidth for="body + upper + precision + border"></output></td>
-				<td class=rounded><output id=roundedURatio for="body + upper + precision + border"></output></td>
-				<td class=rounded><output id=roundedUWidth for="body + upper + precision + border"></output></td>
-				<td class=single><output id=singleURatio for="body + upper + precision + border"></output></td>
-				<td class=single><output id=singleUWidth for="body + upper + precision + border"></output></td>
-			</tr>
-			<tr>
-				<th scope=row><label for=middle>Middle Bout:</label></th>
-				<td><input type=number name=middle value=0></td>
-				<td class=precise><output id=preciseMRatio for="body + middle + precision + border"></output></td>
-				<td class=precise><output id=preciseMWidth for="body + middle + precision + border"></output></td>
-				<td class=rounded><output id=roundedMRatio for="body + middle + precision + border"></output></td>
-				<td class=rounded><output id=roundedMWidth for="body + middle + precision + border"></output></td>
-				<td class=single><output id=singleMRatio for="body + middle + precision + border"></output></td>
-				<td class=single><output id=singleMWidth for="body + middle + precision + border"></output></td>
-			</tr>
-			<tr>
-				<th scope=row><label for=border>Border:</label></th>
-				<td><input type=number name=border value=0></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-			<tr>
-				<th scope=row><label for=precision>Precision:</label></th>
-				<td><input type=number name=precision value=50></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
+      <tr>
+        <th scope=row><label for=body>Body Length:</label></th>
+        <td><input type=number name=body value=0></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope=row><label for=lower>Lower Bout:</label></th>
+        <td><input type=number name=lower value=0></td>
+        <td class=precise><output id=preciseLRatio for="body + lower + precision + border"></output></td>
+        <td class=precise><output id=preciseLWidth for="body + lower + precision + border"></output></td>
+        <td class=rounded><output id=roundedLRatio for="body + lower + precision + border"></output></td>
+        <td class=rounded><output id=roundedLWidth for="body + lower + precision + border"></output></td>
+        <td class=single><output id=singleLRatio for="body + lower + precision + border"></output></td>
+        <td class=single><output id=singleLWidth for="body + lower + precision + border"></output></td>
+      </tr>
+      <tr>
+        <th scope=row><label for=upper>Upper Bout:</label></th>
+        <td><input type=number name=upper value=0></td>
+        <td class=precise><output id=preciseURatio for="body + upper + precision + border"></output></td>
+        <td class=precise><output id=preciseUWidth for="body + upper + precision + border"></output></td>
+        <td class=rounded><output id=roundedURatio for="body + upper + precision + border"></output></td>
+        <td class=rounded><output id=roundedUWidth for="body + upper + precision + border"></output></td>
+        <td class=single><output id=singleURatio for="body + upper + precision + border"></output></td>
+        <td class=single><output id=singleUWidth for="body + upper + precision + border"></output></td>
+      </tr>
+      <tr>
+        <th scope=row><label for=middle>Middle Bout:</label></th>
+        <td><input type=number name=middle value=0></td>
+        <td class=precise><output id=preciseMRatio for="body + middle + precision + border"></output></td>
+        <td class=precise><output id=preciseMWidth for="body + middle + precision + border"></output></td>
+        <td class=rounded><output id=roundedMRatio for="body + middle + precision + border"></output></td>
+        <td class=rounded><output id=roundedMWidth for="body + middle + precision + border"></output></td>
+        <td class=single><output id=singleMRatio for="body + middle + precision + border"></output></td>
+        <td class=single><output id=singleMWidth for="body + middle + precision + border"></output></td>
+      </tr>
+      <tr>
+        <th scope=row><label for=border>Border:</label></th>
+        <td><input type=number name=border value=0></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th scope=row><label for=precision>Precision:</label></th>
+        <td><input type=number name=precision value=50></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
     </tbody>
-		</table>
-	</form>
-	<div id=instruments></div>
+    </table>
+  </form>
+  <table id="instruments">
+    <thead>
+      <tr>
+        <th>Maker</th>
+        <th>Year</th>
+        <th>Type</th>
+        <th>Body Length</th>
+        <th>Info</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 <script type="text/javascript">
 const inputs = Object.fromEntries(
-	[...document.querySelectorAll('input')].map(i => [i.name, i])
+  [...document.querySelectorAll('input')].map(i => [i.name, i])
 )
 const outputs = Object.fromEntries(
-	[...document.querySelectorAll('output')].map(o => [o.id, o])
+  [...document.querySelectorAll('output')].map(o => [o.id, o])
 )
 
 const ratios = Array(64 + 1).keys().drop(1).map(n => ({
-	graduation: n/4,
-	ratio: 1 - 1 / (n/4),
-	format: (2/3) * (1 - 1 / (n/4))
+  graduation: n/4,
+  ratio: 1 - 1 / (n/4),
+  format: (2/3) * (1 - 1 / (n/4))
 })).toArray()
 
+console.log(ratios)
+
 const fmtNum = (n = 0) => {
-	const left = n - ~~(n)
-	return ~~(n) + ~~(left * 5) * 0.25 
+  const left = n - ~~(n)
+  return ~~(n) + ~~(left * 5) * 0.25 
 }
+
+
 
 // Recompute the outputs
 const applyChanges = () => {
-	const border = Number(inputs.border.value)
-	const precision = Number(inputs.precision.value)
-	const bodyLength = Number(inputs.body.value) - border
-	const lowerBout = Number(inputs.lower.value) - border
-	const upperBout = Number(inputs.upper.value) - border
-	const middleBout = Number(inputs.middle.value) - border
+  const border = Number(inputs.border.value)
+  const precision = Number(inputs.precision.value)
+  const bodyLength = Number(inputs.body.value) - border
+  const lowerBout = Number(inputs.lower.value) - border
+  const upperBout = Number(inputs.upper.value) - border
+  const middleBout = Number(inputs.middle.value) - border
 
-	const values = [
-		...ratios.map(({ graduation, format }) => ({
-			lbRatio: graduation,
-			lbScore: Math.abs(lowerBout - format * bodyLength) + border,
-			lb: format * bodyLength,
-		}))
-		.filter(({ lbScore }) => lbScore < bodyLength/50)
-		.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
-			ubRatio: graduation,
-			ubScore: Math.abs(upperBout - ratio * v.lb) + border,
-			ub: ratio * v.lb,
-			...v,
-		})))
-		.filter(({ ubScore }) => ubScore < upperBout/50)
-		.flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
-			mbRatio: graduation,
-			mbScore: Math.abs(middleBout - ratio * v.ub) + border,
-			mb: ratio * v.ub,
-			...v,
-		})))
-		.filter(({ mbScore }) => mbScore < middleBout/50),
-		{
-			method: 'single',
-			...Object.fromEntries(
-				Object.entries({ lowerBout, upperBout, middleBout }).flatMap(([k, v]) => {
-					const [ratio, score, width] = ratios.map(({ graduation, format }) => [
-						graduation,
-						Math.abs(v - format * bodyLength) + border,
-						format * bodyLength + border,
-					]).sort((a, b) => a[1] - b[1])[0]
-					return [
-						[`${k[0]}bRatio`, ratio],
-						[`${k[0]}bScore`, score],
-						[`${k[0]}b`, width],
-					]
-				})
-			)
-		}]
-		.map(v => ({
-			...v,
-			method: v.method || 'triple',
-			score: v.lbScore + v.ubScore + v.mbScore,
-		}))
-		.sort((a,b) => a.score - b.score)
+  const values = [
+    ...ratios.map(({ graduation, format }) => ({
+      lbRatio: graduation,
+      lbScore: Math.abs(lowerBout - format * bodyLength),
+      lb: format * bodyLength,
+    }))
+    //.filter(({ lbScore }) => lbScore < bodyLength/50)
+    .flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
+      ubRatio: graduation,
+      ubScore: Math.abs(upperBout - ratio * v.lb),
+      ub: ratio * v.lb,
+      ...v,
+    })))
+    //.filter(({ ubScore }) => ubScore < upperBout/50)
+    .flatMap(v => ratios.flatMap(({ graduation, ratio }) => ({
+      mbRatio: graduation,
+      mbScore: Math.abs(middleBout - ratio * v.ub),
+      mb: ratio * v.ub,
+      ...v,
+    }))),
+    //.filter(({ mbScore }) => mbScore < middleBout/50),
+    {
+      method: 'single',
+      ...Object.fromEntries(
+        Object.entries({ lowerBout, upperBout, middleBout }).flatMap(([k, v]) => {
+          const [ratio, score, width] = ratios.map(({ graduation, format }) => [
+            graduation,
+            Math.abs(v - format * bodyLength),
+            format * bodyLength,
+          ]).sort((a, b) => a[1] - b[1])[0]
+          return [
+            [`${k[0]}bRatio`, ratio],
+            [`${k[0]}bScore`, score],
+            [`${k[0]}b`, width],
+          ]
+        })
+      )
+    }]
+    .map(v => ({
+      ...v,
+      method: v.method || 'triple',
+      score: v.lbScore + v.ubScore + v.mbScore,
+    }))
+    .sort((a,b) => a.score - b.score)
 
-	const isInt = n => ~~n === n
-
-	const [precise] = values
-	const single = values.find(m => m.method === 'single')
-	const rounded = values.find(
-		v => isInt(v.lbRatio) && isInt(v.ubRatio) && isInt(v.mbRatio)
-	)
-	for (const [k, v] of Object.entries({ precise, single, rounded })) {
-		outputs[`${k}LRatio`].value = fmtNum(v?.lbRatio)
-		outputs[`${k}URatio`].value = fmtNum(v?.ubRatio)
-		outputs[`${k}MRatio`].value = fmtNum(v?.mbRatio)
-		outputs[`${k}LWidth`].value = fmtNum(v?.lb)
-		outputs[`${k}UWidth`].value = fmtNum(v?.ub)
-		outputs[`${k}MWidth`].value = fmtNum(v?.mb)
-	}
+  const isInt = n => ~~n === n
+  const [precise] = values
+  const single = values.find(m => m.method === 'single')
+  const rounded = values.find(
+    v => isInt(v.lbRatio) && isInt(v.ubRatio) && isInt(v.mbRatio)
+  )
+  for (const [k, v] of Object.entries({ precise, single, rounded })) {
+    outputs[`${k}LRatio`].value = fmtNum(v?.lbRatio)
+    outputs[`${k}URatio`].value = fmtNum(v?.ubRatio)
+    outputs[`${k}MRatio`].value = fmtNum(v?.mbRatio)
+    outputs[`${k}LWidth`].value = fmtNum(v?.lb)
+    outputs[`${k}UWidth`].value = fmtNum(v?.ub)
+    outputs[`${k}MWidth`].value = fmtNum(v?.mb)
+  }
 }
 
-// Hook events in the dom
-const handleBtn = (e) => {
-	for (const [k, v] of Object.entries(e.target.dataset)) {
-		inputs[k].value = v
-	}
-	applyChanges()
-}
-
-for (const btn of document.querySelectorAll('button')) {
-	btn.addEventListener('click', handleBtn)
+const loadData = (data) => {
+  for (const [k, v] of Object.entries(data)) {
+    inputs[k].value = v
+  }
+  applyChanges()
 }
 
 for (const i of Object.values(inputs)) {
-	i.addEventListener('input', applyChanges)
+  i.addEventListener('input', applyChanges)
 }
 
 applyChanges()
 
+const parseNum = (str) => Number(str.replaceAll('.', '').replace(',', '.'))
 const loadInstruments = async () => {
-	const res = await fetch('https://opensheet.elk.sh/1HFn1RCQ0jn7bF4v0fY5WTwA98wSP-E6aadHs_K1JfTs/1')
-	const instruments = await res.json()
-	const btns = instruments.map(i => {
-		const btn = document.createElement('button')
-		btn.append(`${i.maker || ''} ${i.description || ''} ${i.year ? `(${i.year})` : ''}`.trim())
-		btn.dataset.upper = i['upper bout']
-		btn.dataset.lower = i['lower bout']
-		btn.dataset.middle = i['middle bout']
-		btn.dataset.body = i['body length']
-		btn.addEventListener('click', handleBtn)
-		return btn
-	})
-	document.getElementById('instruments').replaceChildren(...btns)
+  const res = await fetch('https://opensheet.elk.sh/1HFn1RCQ0jn7bF4v0fY5WTwA98wSP-E6aadHs_K1JfTs/1')
+  const instruments = (await res.json()).filter(i => i.maker && i.info)
+  /*
+  Example of data:
+  {
+    "maker": "jean baptiste Tononi",
+    "year": "1740",
+    "circa": "",
+    "city": "bologna",
+    "info": "\"the shape of baroque\"",
+    "object": "top",
+    "type": "basse",
+    "body length": "714,00",
+    "stop": "386,0",
+    "neck": "256",
+    "lower bout": "402,0",
+    "upper bout": "328,0",
+    "middle bout": "225,0",
+    "S+N": "642,0",
+    "X": "nr",
+    "Z": "nr",
+    "str/2": "321,0",
+    "Column 28": "1/10",
+    "bod/2": "357,0",
+    "Column 29": "1/12",
+    "Column 25": "nr",
+    "Column 26": "29,00",
+    "format": "0,563",
+    "neck ratio": "0,601"
+  }
+  */
+  instruments.forEach(i => i.body = parseNum(i['body length'] || ''))
+  instruments.sort((a, b) => a.body - b.body)
+  const btns = instruments.map(i => {
+    const row = document.createElement("tr")
+    row.tabIndex = "0"
+    row.role = "button"
+    row.innerHTML = `
+      <td>${i.maker || ''}</td>
+      <td>${i.year || ''}</td>
+      <td>${i.type || ''}</td>
+      <td>${i["body length"]}</td>
+      <td>${i.info || ''}</td>
+    `
+    const data = {
+      body: i.body,
+      upper: parseNum(i['upper bout'] || ''),
+      lower: parseNum(i['lower bout'] || ''),
+      middle: parseNum(i['middle bout'] || ''),
+    }
+    row.addEventListener('click', () => {
+      loadData(data)
+      row.focus()
+    })
+    row.addEventListener('keydown', function(e) {
+      // Trigger click if Enter or Space is pressed
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        loadData(data)
+      }
+
+      // TODO: handle up / down (?)
+    })
+    return row
+  })
+  document.querySelector('#instruments tbody').replaceChildren(...btns)
 }
 
 loadInstruments()
